@@ -7,9 +7,12 @@ function App() {
   const [greet, setGreet] = useState('');
   const [greetingValue, setGreetingValue] = useState('');
   const [balance, setBalance] = useState();
+  const [transactions, setTransactions] = useState([]);
+  const [transactionCount, setTransactionCount] = useState(0);
 
   const provider = new ethers.providers.Web3Provider(window.ethereum)
   const signer = provider.getSigner()
+  const wallet = new ethers.Wallet("0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80", provider);
   // Deploy để lấy contract address và lấy ABI từ file JSON
   const contractAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3';
   const ABI = [
@@ -58,8 +61,275 @@ function App() {
       "type": "function"
     }
   ];
+  const contractAddress2 = '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512';
+  const ABIStore = [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "sender",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amountETH",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amountVND",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "txHash",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "status",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "DebugLog",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "sender",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amountETH",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amountVND",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "txHash",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "status",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "TransactionStored",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "index",
+          "type": "uint256"
+        }
+      ],
+      "name": "getTransaction",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getTransactionCount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getTransactions",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "sender",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amountETH",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amountVND",
+              "type": "uint256"
+            },
+            {
+              "internalType": "string",
+              "name": "txHash",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "status",
+              "type": "string"
+            },
+            {
+              "internalType": "uint256",
+              "name": "timestamp",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct TransactionRecorder.TransactionInfo[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "amountETH",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amountVND",
+          "type": "uint256"
+        },
+        {
+          "internalType": "string",
+          "name": "txHash",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "status",
+          "type": "string"
+        }
+      ],
+      "name": "storeTransaction",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "transactions",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "sender",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amountETH",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amountVND",
+          "type": "uint256"
+        },
+        {
+          "internalType": "string",
+          "name": "txHash",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "status",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ];
   const contract = new ethers.Contract(contractAddress, ABI, signer);  
-
+  const contractStore =  new ethers.Contract(
+    contractAddress2,
+    ABIStore,
+    wallet
+  );
   useEffect(() => {
     const requestAccounts = async () => {
       await provider.send("eth_requestAccounts", []);
@@ -76,12 +346,49 @@ function App() {
       setBalance(ethers.utils.formatEther(balance));
     }
 
+    const fetchTransactions = async () => {
+      try {
+        console.log("Contract Address:", contractAddress2);
+        console.log("Is Valid:", ethers.utils.isAddress(contractAddress2));
+        const network = await provider.getNetwork();
+        console.log("Current Network:", network.chainId);
+        const count = await contract.getTransactionCount();
+        let transactions = [];
+
+        for (let i = 0; i < count; i++) {
+            let tx = await contract.getTransaction(i);
+            transactions.push({
+                sender: tx[0],
+                amountETH: tx[1].toString(),
+                amountVND: tx[2].toString(),
+                txHash: tx[3],
+                status: tx[4],
+                timestamp: tx[5].toString()
+            });
+        }
+        console.log(transactions);
+        setTransactions(transactions);
+      } catch (error) {
+        console.error("Error fetching transactions:", error);
+      }
+    }
+
+    const checkNetwork = async () => {
+      const network = await provider.getNetwork();
+      console.log("Current network:", network);
+      const code = await provider.getCode(contractAddress2);
+      console.log("Contract code exists:", code !== '0x');
+    };
+    
+    checkNetwork().catch(console.error);
+
     requestAccounts()
       .catch(console.error)
     getBalance()
       .catch(console.error)
     getGreeting()
       .catch(console.error)
+    fetchTransactions().catch(console.error)
   }, [])
 
   const handleDepositChange = (e) => {
@@ -97,6 +404,15 @@ function App() {
     const ethValue = ethers.utils.parseEther(depositValue)
     const deposit = await contract.deposit({value: ethValue});
     await deposit.wait();
+    const txStore = await contractStore.storeTransaction(
+      ethValue,
+      ethValue,
+      deposit.hash, 
+      "completed" 
+    );
+    await txStore.wait();
+    console.log("Transaction hash:", deposit.hash);
+    console.log("Transaction hash1:", txStore.hash);
     const balance = await provider.getBalance(contractAddress);
     setBalance(ethers.utils.formatEther(balance));
   }
