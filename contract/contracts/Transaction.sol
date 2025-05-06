@@ -1,15 +1,19 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.28;
+
+import "hardhat/console.sol";
 
 contract TransactionRecorder {
     // Struct lưu thông tin transaction
     struct TransactionInfo {
-        address sender; // Địa chỉ người chuyển
-        uint256 amountETH; // Số tiền giao dịch theo ETH
-        uint256 amountVND; // Số tiền giao dịch nhận được theo VND
-        string txHash; // Transaction hash
-        string status; // Trạng thái giao dịch
-        uint256 timestamp; // Thời gian giao dịch
+        address sender;        
+        uint256 amountEth;      
+        uint256 amountVnd;     
+        string transactionHash;    
+        uint256 accountAOVId;         
+        uint256 timestamp;   
+        uint256 customerId;    
+        uint256 accountFreeFireId;    
     }
 
     // Danh sách transaction
@@ -18,57 +22,64 @@ contract TransactionRecorder {
     // Event khi thêm transaction
     event TransactionStored(
         address indexed sender,
-        uint256 amountETH,
-        uint256 amountVND,
-        string txHash,
-        string status,
-        uint256 timestamp
+        uint256 amountEth,
+        uint256 amountVnd,
+        string transactionHash,
+        uint256 accountAOVId,
+        uint256 timestamp,
+        uint256 customerId,
+        uint256 accountFreeFireId
+    );
+
+    // Event để debug
+    event DebugLog(
+        address sender,
+        uint256 amountEth,
+        uint256 amountVnd,
+        string transactionHash,
+        uint256 accountAOVId,
+        uint256 timestamp,
+        uint256 customerId,
+        string customerName,
+        uint256 productId,
+        string productTitle,
+        string action
     );
 
     // Hàm lưu transaction hash
     function storeTransaction(
-        uint256 amountETH,
-        uint256 amountVND,
-        string calldata txHash,
-        string calldata status
+        uint256 amountEth,
+        uint256 amountVnd,
+        string calldata transactionHash,
+        uint256 accountAOVId,
+        uint256 customerId,
+        uint256 accountFreeFireId
     ) external {
-        emit DebugLog(
-            msg.sender,
-            amountETH,
-            amountVND,
-            txHash,
-            status,
-            block.timestamp
-        );
-
+    
         TransactionInfo memory newTx = TransactionInfo({
             sender: msg.sender,
-            amountETH: amountETH,
-            amountVND: amountVND,
-            txHash: txHash,
-            status: status,
-            timestamp: block.timestamp
+            amountEth: amountEth,
+            amountVnd: amountVnd,
+            transactionHash: transactionHash,
+            accountAOVId: accountAOVId,
+            timestamp: block.timestamp,
+            customerId: customerId,
+            accountFreeFireId: accountFreeFireId
         });
 
         transactions.push(newTx);
+
         emit TransactionStored(
             msg.sender,
-            amountETH,
-            amountVND,
-            txHash,
-            status,
-            block.timestamp
+            amountEth,
+            amountVnd,
+            transactionHash,
+            accountAOVId,
+            block.timestamp,
+            customerId,
+            accountFreeFireId
         );
     }
-
-    event DebugLog(
-        address sender,
-        uint256 amountETH,
-        uint256 amountVND,
-        string txHash,
-        string status,
-        uint256 timestamp
-    );
 
     // Hàm trả về số lượng transaction đã lưu
     function getTransactionCount() public view returns (uint256) {
@@ -86,7 +97,9 @@ contract TransactionRecorder {
             uint256,
             uint256,
             string memory,
-            string memory,
+            uint256,
+            uint256,
+            uint256,
             uint256
         )
     {
@@ -94,11 +107,13 @@ contract TransactionRecorder {
         TransactionInfo memory txInfo = transactions[index];
         return (
             txInfo.sender,
-            txInfo.amountETH,
-            txInfo.amountVND,
-            txInfo.txHash,
-            txInfo.status,
-            txInfo.timestamp
+            txInfo.amountEth,
+            txInfo.amountVnd,
+            txInfo.transactionHash,
+            txInfo.accountAOVId,
+            txInfo.timestamp,
+            txInfo.customerId,
+            txInfo.accountFreeFireId
         );
     }
 
@@ -107,3 +122,4 @@ contract TransactionRecorder {
         return transactions;
     }
 }
+// contract TransactionRecorder {

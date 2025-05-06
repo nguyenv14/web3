@@ -101,6 +101,36 @@ function App() {
           "internalType": "uint256",
           "name": "timestamp",
           "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "customerId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "customerName",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "productId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "productTitle",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "action",
+          "type": "string"
         }
       ],
       "name": "DebugLog",
@@ -144,6 +174,18 @@ function App() {
           "internalType": "uint256",
           "name": "timestamp",
           "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "customerId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "productId",
+          "type": "uint256"
         }
       ],
       "name": "TransactionStored",
@@ -183,6 +225,16 @@ function App() {
           "internalType": "string",
           "name": "",
           "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
         },
         {
           "internalType": "uint256",
@@ -241,6 +293,16 @@ function App() {
               "internalType": "uint256",
               "name": "timestamp",
               "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "customerId",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "productId",
+              "type": "uint256"
             }
           ],
           "internalType": "struct TransactionRecorder.TransactionInfo[]",
@@ -272,6 +334,16 @@ function App() {
           "internalType": "string",
           "name": "status",
           "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "customerId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "productId",
+          "type": "uint256"
         }
       ],
       "name": "storeTransaction",
@@ -318,6 +390,16 @@ function App() {
           "internalType": "uint256",
           "name": "timestamp",
           "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "customerId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "productId",
+          "type": "uint256"
         }
       ],
       "stateMutability": "view",
@@ -352,18 +434,20 @@ function App() {
         console.log("Is Valid:", ethers.utils.isAddress(contractAddress2));
         const network = await provider.getNetwork();
         console.log("Current Network:", network.chainId);
-        const count = await contract.getTransactionCount();
+        const count = await contractStore.getTransactionCount();
         let transactions = [];
 
         for (let i = 0; i < count; i++) {
-            let tx = await contract.getTransaction(i);
+            let tx = await contractStore.getTransaction(i);
             transactions.push({
                 sender: tx[0],
                 amountETH: tx[1].toString(),
                 amountVND: tx[2].toString(),
                 txHash: tx[3],
                 status: tx[4],
-                timestamp: tx[5].toString()
+                timestamp: tx[5].toString(),
+                customerId: tx[6],
+                productId: tx[7],
             });
         }
         console.log(transactions);
@@ -404,11 +488,15 @@ function App() {
     const ethValue = ethers.utils.parseEther(depositValue)
     const deposit = await contract.deposit({value: ethValue});
     await deposit.wait();
+
+    
     const txStore = await contractStore.storeTransaction(
       ethValue,
       ethValue,
       deposit.hash, 
-      "completed" 
+      "completed" ,
+      1,
+      1
     );
     await txStore.wait();
     console.log("Transaction hash:", deposit.hash);

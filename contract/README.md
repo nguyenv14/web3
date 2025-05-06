@@ -10,6 +10,7 @@ npx hardhat test
 REPORT_GAS=true npx hardhat test
 npx hardhat node // chạy này trước 
 npx hardhat ignition deploy ./ignition/modules/Greeter.js --network localhost // mở terminal mới chạy cái này
+npx hardhat ignition deploy ./ignition/modules/TransactionModule.js --network localhost // mở terminal mới chạy cái này
 // Sẽ ra được cái address như này
 <!-- 0x5FbDB2315678afecb367f032d93F642f64180aa3 -->
 <!--TransactionModule#TransactionRecorder  -->
